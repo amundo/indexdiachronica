@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+<style>
+html {
+  display:flex;
+  min-height:100vh
+  flex-direction: column;
+}
+* {
+  font-family: 'Fira Sans';
+}
+
+main {
+  flex: 1;
+  display:flex;
+}
+
+section { 
+  display:flex;  
+}
+
+section div { 
+  flex: 1;
+}
+
+div#image img { 
+  width: 100%;
+}
+
+div#analysis textarea { 
+  width: 100%;
+  height: 100%;
+  padding: 1em;
+  font-family: 'Fira Mono';
+}
+</style>
+</head>
+<body >
+  
+<header>
+<h1>Example Analysis of a Changeset</h1>
+<p>Let’s pick a changeset from a random language in the Index
+Diachronica and talk through what information we need to 
+extract from it: </p>
+</header>
+
+<main>
+
+<section>
+<div id=image><img src="example.png" alt="Proto-Pai to Chapai" /></div>
+<div id=analysis>
+<textarea spellcheck=false style=width:90%;></textarea>
+</div>
+</section>
+
+</main>
+
+</body>
+</html>
+

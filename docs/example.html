@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modeling Index Diachronica Changesets</title>
+<style>
+html {
+  display:flex;
+  min-height:100vh
+  flex-direction: column;
+}
+* {
+  font-family: 'Fira Sans';
+}
+
+main {
+  margin-right: 20%;
+}
+
+.comparison { 
+  display:flex;  
+}
+
+.comparison pre#changeset { 
+  white-space: pre-wrap;
+}
+
+.comparison div , 
+.comparison pre#changeset , 
+.comparison pre#renderedChangeset { 
+  flex: 1;
+  display:flex;
+}
+
+div#image img { 
+  width: 100%;
+  align-self: flex-start;
+}
+
+.comparison div pre ,
+.comparison div textarea {
+  width: 80%;
+  padding: 1em;
+  font-family: 'Fira Mono';
+  white-space: pre-wrap;
+}
+</style>
+</head>
+<body >
+  
+<header>
+<h1>Modeling Index Diachronica Changesets as JSON data</h1>
+</header>
+
+<p>Let’s pick a changeset from a random language in the Index
+Diachronica and talk through what information we need to 
+extract from it. Firstly, we can just transcribe the text,
+with a few labels distinguishing the data types:</p>
+
+<main>
+
+<section class=comparison>
+<div id=image><img src="example.png" alt="Proto-Pai to Chapai" /></div>
+<div id=analysis>
+<pre spellcheck=false>
+<strong>Family</strong>
+Yuman-Cochimí
+
+<strong>Subfamily</strong>
+Pai
+
+<strong>Parent</strong>
+Proto-Pai
+
+<strong>Child</strong>
+Chapai
+
+<strong>Contributor</strong>
+Pogostick Man
+
+<strong>Reference</strong>
+Wares, Alan C. (1954?) “Three Pai Dialects of Lower California”. Summer Institute of Linguistics Collection of Unpublished Materials.
+
+<strong>Changeset</strong>
+
+tʃ → ʃ / _{w,i}
+tʃ → ∅ / _xʷ
+tʃ → s / 
+t → tʃ / ! n_
+kʷ → k / _#
+b → p
+o → u
+s → ʂ
+ʔ → ∅ / _{ɲ,j}
+{w,j} → ∅ / a_
+Vː → V ?
+Stress lost?
+
+</pre>
+</div>
+</section>
+
+<p>But of course, the thing we <em>really</em> want to model here are the 
+changes themselves. It’s pretty interesting to note that user Pogostick Man
+has transcribed these changes into IPA, from the original notation. </p>
+
+<p>
+A key question is to what degree the whole Index Diachronica has been transliterated
+into IPA. We’ll have to do some analysis to determine if that’s the case.
+</p>
+
+<h2>What’s in a Change?</h2>
+
+<p>
+So, the heart of the matter: what is the actual data contained in a diachronic
+change? Let’s take a simple one: 
+</p>
+
+<pre>
+kʷ → k / _#
+</pre>
+
+<p>
+This can be read:
+</p>
+
+<blockquote>
+<p>
+Proto-Pai /kʷ/ became Chapai /k/ word-finally. 
+</p>
+</blockquote>
+
+<p>
+We can think of the data like this:
+</p>
+
+<pre>
+{
+  "parent": "Proto-Pai", 
+  "child": "Chapai", 
+  "before": "kʷ",
+  "after": "k",
+  "environment": "_#"
+}
+</pre>
+
+<p>
+So this is a little more structured — it captures the basic information in the prose description above.
+Let’s try another:
+</p>
+
+
+<blockquote>
+<p>
+Proto-Pai /b/ became Chapai /p/. 
+</p>
+</blockquote>
+
+
+<pre>
+{
+  "parent": "Proto-Pai", 
+  "child": "Chapai", 
+  "before": "b",
+  "after": "p",
+  "environment": null
+}
+</pre>
+
+<p>
+Here we don’t even need to mention the environment, because apparently this rule applied 
+across the board. 
+</p>
+
+<p>
+We can actually untangle some of the more complicated-looking rules by just
+viewing them as abbreviations for multiple individual rules. So, the rule:
+</p>
+
+
+<blockquote>
+  <p>
+    tʃ → ∅ / _{w,i}
+  </p>
+</blockquote>
+
+<p>Can actually be interpreted as two rules:</p>
+
+<blockquote>
+  <p>
+    tʃ → ∅ / _w
+  </p>
+  <p>
+    tʃ → ∅ / _i
+  </p>
+</blockquote>
+
+<p>
+Which boil down to:
+
+</p>
+
+<pre>
+  {
+    "parent": "Proto-Pai", 
+    "child": "Chapai", 
+    "before": "tʃ",
+    "after": "∅",
+    "environment": "_i"
+  }
+</pre>
+
+<p>…and…</p>
+
+<pre>
+  {
+    "parent": "Proto-Pai", 
+    "child": "Chapai", 
+    "before": "tʃ",
+    "after": "∅",
+    "environment": "_w"
+  }
+</pre>
+
+<p>
+These representations are valid <a title="JSON" href="http://json.org/">JSON</a>. 
+You might be wondering why we should want to convert rules into JSON — the answer is,
+then the rules are <em>data</em>, and we can do all kinds of neat things with them. 
+For one thing, we can render them in whatever format we want. 
+</p>
+
+<p>
+But cooler than that, once we have some rules in place, and we have some text in <em>any</em>
+language in IPA, we can <em>run</em> the rules on text. How cool would it be to run a 
+Chapai changeset on… say, Irathient, <em>just because</em>?
+</p>
+
+
+<section class=comparison>
+
+<div id=sampleRule>
+<textarea style=min-height:10em; spellcheck=false>
+  {
+    "parent": "Proto-Pai", 
+    "child": "Chapai", 
+    "before": "tʃ",
+    "after": "∅",
+    "environment": "_w"
+  }
+</textarea>
+</div>
+
+<div id=renderedRule class=render>
+</div>
+
+</section>
+
+<p>
+Try deleting the “t” in in “tʃ” the box above. You’ll see that the 
+rendered rule on the right changes (to <code>ʃ → ∅ / _w</code>), because a little 
+Javascript program is watching that box, interpreting the data, and templating 
+out a familiar representation of that data. This kind of thing is just the tip 
+of the iceberg of what we can do with a full database model of the changes in 
+the Index Diachronica.
+</p>
+
+<p>So just to wrap up this little intro, I suggest representing this whole changeset
+(ordered list of changes) for Proto-Pai to Chapai in the following way:</p>
+
+<section class="comparison">
+
+<pre id=changeset>
+{
+  "metadata": {
+    "parent": "Proto-Pai", 
+    "child": "Chapai", 
+    "contributor": "Pogostick Man", 
+    "source": "Wares, Alan C. (1954?) “Three Pai Dialects of Lower California”. Summer Institute of Linguistics Collection of Unpublished Materials.",
+    "family": "Yuman-Cochimí",
+    "subfamily": "Pai",
+    "notes": [
+      "The last rule, “Stress lost?” should probably checked in the original source."
+    ]
+  },
+  "changeset": [
+    {
+      "before": "tʃ",
+      "after": "ʃ",
+      "environment": "_w"
+    },
+    {
+      "before": "tʃ",
+      "after": "ʃ",
+      "environment": "_i"
+    },
+    {
+      "before": "tʃ",
+      "after": "∅",
+      "environment": "_xʷ"
+    },
+    {
+      "before": "tʃ",
+      "after": "s",
+      "environment": null 
+    },
+    {
+      "before": "t",
+      "after": "tʃ",
+      "environment": "! n_"
+    },
+    {
+      "before": "kʷ",
+      "after": "k",
+      "environment": "_#"
+    },
+    {
+      "before": "b",
+      "after": "p",
+      "environment": null
+    },
+    {
+      "before": "o",
+      "after": "u",
+      "environment": null
+    },
+    {
+      "before": "s",
+      "after": "ʂ",
+      "environment": null
+    },
+    {
+      "before": "ʔ",
+      "after": "∅",
+      "environment": "_j"
+    },
+    {
+      "before": "ʔ",
+      "after": "∅",
+      "environment": "_ɲ"
+    },
+    {
+      "before": "w",
+      "after": "∅",
+      "environment": "a_"
+    },
+    {
+      "before": "j",
+      "after": "∅",
+      "environment": "a_"
+    },
+    {
+      "before": "Vː",
+      "after": "V",
+      "environment": null
+    }
+  ]
+}
+
+</pre>
+<pre id=renderedChangeset>
+</pre>
+</section>
+
+<p>
+I left out the last rule, because it’s kind of unclear what it means.
+I’ve added a note in the metadata to this effect. The idea is that someone
+who comes along and wants to check this file could go off and verify that
+rule in the original source.
+</p>
+
+<p>
+There are many details left out here, we’ll continue to work through them
+as we continue to work on the project.
+</p>
+
+<blockquote>
+<em>Please note — we’re not going to write out all these data files by hand!
+We’ll take several steps to get the database bootstrapped. We’ll extract
+as much data automatically as we can, and then we’ll build a simple user interface
+to allow contributors to check and update the information. More soon.</em>
+</blockquote>
+
+</main>
+<script>
+var renderRule = rule => `
+   ${rule.before} → ${rule.after} ${rule.environment ? '/ ' + rule.environment : ''}
+`;
+
+var render = () => {
+  var 
+    rule = JSON.parse(document.querySelector('#sampleRule textarea').value),
+    changeset = JSON.parse(document.querySelector('#changeset').innerHTML);
+
+  document.querySelector('#renderedRule').innerHTML = renderRule(rule);
+  document.querySelector('#renderedChangeset').innerHTML = changeset.changeset.map(renderRule).join('');
+}
+
+var listen = () => { 
+  var renderedRule = document.querySelector('#renderedRule');
+  var ruleTA = document.querySelector('#sampleRule textarea');
+  var ruleText = JSON.parse(ruleTA.value);
+
+  ruleTA.addEventListener('input', render);
+  ruleTA.addEventListener('change', render);
+  render();
+}
+
+listen();
+</script>
+
+</body>
+</html>
+
