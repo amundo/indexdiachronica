@@ -1,5 +1,7 @@
 # Index Diachronica Database Project
 
+![Index Diachronica logo](logo.png)
+
 This repository is a project to convert the Index Diachronica into a 
 database. There are several reasons that this is worth doing:
 
