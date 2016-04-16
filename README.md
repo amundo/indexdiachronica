@@ -25,3 +25,4 @@ database software such as Zotero, either in whole or in part.
 but they are a separate project. It would make sense to have a separate project, (perhaps
 we could call it the _Index Phonologica_!) to handle that. 
 
+For more details see [http://amundo.github.io/indexdiachronica/example.html](http://amundo.github.io/indexdiachronica/example.html)
